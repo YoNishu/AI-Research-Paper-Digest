@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Categories — Paper Digest{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>arXiv Categories</h1>
+</div>
+
+<div class="add-form-container">
+    <form method="post" action="/ui/categories/add" class="add-form">
+        <input type="text" name="arxiv_code" placeholder="e.g. cs.AI, cs.LG, stat.ML" required class="input-field">
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
+    <p class="hint">Enter an arXiv category code. <a href="https://arxiv.org/category_taxonomy" target="_blank">Browse categories →</a></p>
+</div>
+
+{% if categories %}
+<div class="category-list">
+    {% for cat in categories %}
+    <div class="category-item">
+        <div class="category-info">
+            <h3>{{ cat.name }}</h3>
+            <code>{{ cat.arxiv_code }}</code>
+            {% if cat.description %}<p>{{ cat.description }}</p>{% endif %}
+            <span class="date-label">Added {{ cat.added_at.strftime('%b %d, %Y') }}</span>
+        </div>
+        <form method="post" action="/ui/categories/{{ cat.id }}/delete">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Unsubscribe from {{ cat.arxiv_code }}?')">Remove</button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No categories subscribed yet. Add one above to start tracking papers.</p>
+</div>
+{% endif %}
+{% endblock %}

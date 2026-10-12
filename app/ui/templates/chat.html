@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Chat — Paper Digest{% endblock %}
+{% block content %}
+<div class="chat-layout">
+    <aside class="chat-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Conversations</h3>
+            <button class="btn btn-sm" onclick="newChat()">+ New</button>
+        </div>
+        <div class="sidebar-list" id="conversationList"></div>
+    </aside>
+    <div class="chat-main">
+        <div class="chat-header" id="chatHeader">
+            <span>Select or start a conversation</span>
+        </div>
+        <div class="chat-messages" id="messages"></div>
+        <form class="chat-input-form" id="chatForm" onsubmit="sendMessage(event)">
+            <textarea id="messageInput" placeholder="Ask about papers…" rows="2" required></textarea>
+            <button type="submit" class="btn btn-primary" id="sendBtn">Send</button>
+        </form>
+    </div>
+</div>
+<script>
+    const INITIAL_CONVERSATION_ID = {{ conversation_id | tojson }};
+</script>
+<script src="/static/chat.js"></script>
+{% endblock %}

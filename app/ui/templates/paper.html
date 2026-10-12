@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ paper.title }} — Paper Digest{% endblock %}
+{% block content %}
+<div class="paper-detail">
+    <a href="/ui" class="back-link">← Back to digest</a>
+
+    <div class="paper-meta">
+        {% if paper.analysis %}
+        <span class="score-badge large {% if paper.analysis.novelty_score >= 7 %}high{% elif paper.analysis.novelty_score >= 4 %}mid{% else %}low{% endif %}">
+            {{ paper.analysis.novelty_score }}/10
+        </span>
+        {% endif %}
+        <span class="category-tag">{{ paper.category.arxiv_code if paper.category else 'N/A' }}</span>
+        <span class="status-badge {{ paper.status.value }}">{{ paper.status.value }}</span>
+    </div>
+
+    <h1>{{ paper.title }}</h1>
+    <p class="authors">{{ paper.authors | join(', ') }}</p>
+    <p class="date">Published {{ paper.published_at.strftime('%B %d, %Y') }} · arXiv: <a href="https://arxiv.org/abs/{{ paper.arxiv_id }}" target="_blank">{{ paper.arxiv_id }}</a></p>
+
+    {% if paper.analysis %}
+    <section class="detail-section">
+        <h2>Summary</h2>
+        <p>{{ paper.analysis.summary }}</p>
+    </section>
+
+    <section class="detail-section">
+        <h2>Key Contributions</h2>
+        <ul>
+            {% for c in paper.analysis.key_contributions %}
+            <li>{{ c }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="detail-section">
+        <h2>Methodology</h2>
+        <p>{{ paper.analysis.methodology }}</p>
+    </section>
+
+    {% if paper.analysis.limitations %}
+    <section class="detail-section">
+        <h2>Limitations</h2>
+        <p>{{ paper.analysis.limitations }}</p>
+    </section>
+    {% endif %}
+
+    <section class="detail-section">
+        <h2>Keywords</h2>
+        <div class="card-keywords">
+            {% for kw in paper.analysis.keywords %}
+            <span class="keyword-pill">{{ kw }}</span>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="detail-section">
+        <h2>Abstract</h2>
+        <blockquote>{{ paper.abstract }}</blockquote>
+    </section>
+
+    <section class="detail-section collapsible">
+        <h2 onclick="this.parentElement.classList.toggle('open')">Full Extracted Text ▸</h2>
+        <pre class="full-text">{{ paper.analysis.full_text[:10000] }}{% if paper.analysis.full_text | length > 10000 %}… [truncated]{% endif %}</pre>
+    </section>
+    {% elif paper.status.value == 'failed' %}
+    <div class="error-box">
+        <h2>Processing Failed</h2>
+        <p>{{ paper.error_message or 'Unknown error' }}</p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>Paper is {{ paper.status.value }}. Check back after processing completes.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

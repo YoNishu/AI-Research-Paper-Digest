@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Browse Papers — Paper Digest{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Browse Papers <span class="total-count">({{ total }})</span></h1>
+</div>
+
+<!-- Search & Filter Bar -->
+<form method="get" action="/ui/papers" class="browse-filters">
+    <div class="filter-row">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search titles, abstracts, summaries, keywords…"
+               class="input-field search-input" autocomplete="off">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+    <div class="filter-row filter-options">
+        <div class="filter-group">
+            <label>Category</label>
+            <select name="category" class="input-field select-field" onchange="this.form.submit()">
+                <option value="0">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if category == cat.id %}selected{% endif %}>{{ cat.arxiv_code }} — {{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Min Score</label>
+            <select name="min_score" class="input-field select-field" onchange="this.form.submit()">
+                <option value="0" {% if min_score == 0 %}selected{% endif %}>Any</option>
+                <option value="5" {% if min_score == 5 %}selected{% endif %}>5+</option>
+                <option value="6" {% if min_score == 6 %}selected{% endif %}>6+</option>
+                <option value="7" {% if min_score == 7 %}selected{% endif %}>7+</option>
+                <option value="8" {% if min_score == 8 %}selected{% endif %}>8+</option>
+                <option value="9" {% if min_score == 9 %}selected{% endif %}>9+</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Sort</label>
+            <select name="sort" class="input-field select-field" onchange="this.form.submit()">
+                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest First</option>
+                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                <option value="score" {% if sort == 'score' %}selected{% endif %}>Highest Score</option>
+            </select>
+        </div>
+        {% if q or category > 0 or min_score > 0 %}
+        <a href="/ui/papers" class="btn btn-clear">Clear Filters</a>
+        {% endif %}
+    </div>
+</form>
+
+{% if papers %}
+<div class="paper-grid">
+    {% for paper in papers %}
+    <a href="/ui/paper/{{ paper.id }}" class="paper-card">
+        <div class="card-header">
+            <span class="score-badge {% if paper.analysis.novelty_score >= 7 %}high{% elif paper.analysis.novelty_score >= 4 %}mid{% else %}low{% endif %}">
+                {{ paper.analysis.novelty_score }}/10
+            </span>
+            <span class="category-tag">{{ paper.category.arxiv_code if paper.category else 'N/A' }}</span>
+        </div>
+        <h3 class="card-title">{{ paper.title }}</h3>
+        <p class="card-authors">{{ paper.authors[:3] | join(', ') }}{% if paper.authors | length > 3 %} et al.{% endif %}</p>
+        <p class="card-summary">{{ paper.analysis.summary[:200] }}{% if paper.analysis.summary | length > 200 %}…{% endif %}</p>
+        <div class="card-keywords">
+            {% for kw in paper.analysis.keywords[:4] %}
+            <span class="keyword-pill">{{ kw }}</span>
+            {% endfor %}
+        </div>
+        <p class="card-date">{{ paper.published_at.strftime('%b %d, %Y') }}</p>
+    </a>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% if page > 1 %}
+    <a href="/ui/papers?q={{ q }}&category={{ category }}&min_score={{ min_score }}&sort={{ sort }}&page={{ page - 1 }}" class="btn btn-page">← Prev</a>
+    {% endif %}
+
+    {% for p in range(1, total_pages + 1) %}
+        {% if p == page %}
+        <span class="btn btn-page active-page">{{ p }}</span>
+        {% elif p <= 3 or p >= total_pages - 1 or (p >= page - 1 and p <= page + 1) %}
+        <a href="/ui/papers?q={{ q }}&category={{ category }}&min_score={{ min_score }}&sort={{ sort }}&page={{ p }}" class="btn btn-page">{{ p }}</a>
+        {% elif p == 4 or p == total_pages - 2 %}
+        <span class="btn btn-page dots">…</span>
+        {% endif %}
+    {% endfor %}
+
+    {% if page < total_pages %}
+    <a href="/ui/papers?q={{ q }}&category={{ category }}&min_score={{ min_score }}&sort={{ sort }}&page={{ page + 1 }}" class="btn btn-page">Next →</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    {% if q or category > 0 or min_score > 0 %}
+    <p>No papers match your filters.</p>
+    <a href="/ui/papers" class="btn btn-primary" style="margin-top:1rem;display:inline-block;">Clear Filters</a>
+    {% else %}
+    <p>No papers yet. Go to <a href="/ui">Digest</a> and hit <strong>Refresh</strong> to fetch papers.</p>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

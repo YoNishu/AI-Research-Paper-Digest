@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Daily Digest — Paper Digest{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Daily Digest</h1>
+    <div class="header-actions">
+        <form method="post" action="/ui/refresh" id="refreshForm">
+            <button type="submit" class="btn btn-primary" id="refreshBtn">
+                <span class="refresh-icon">↻</span> Refresh
+            </button>
+        </form>
+    </div>
+</div>
+
+{% if papers %}
+<div class="paper-grid">
+    {% for paper in papers %}
+    <a href="/ui/paper/{{ paper.id }}" class="paper-card">
+        <div class="card-header">
+            <span class="score-badge {% if paper.analysis.novelty_score >= 7 %}high{% elif paper.analysis.novelty_score >= 4 %}mid{% else %}low{% endif %}">
+                {{ paper.analysis.novelty_score }}/10
+            </span>
+            <span class="category-tag">{{ paper.category.arxiv_code if paper.category else 'N/A' }}</span>
+        </div>
+        <h3 class="card-title">{{ paper.title }}</h3>
+        <p class="card-authors">{{ paper.authors[:3] | join(', ') }}{% if paper.authors | length > 3 %} et al.{% endif %}</p>
+        <p class="card-summary">{{ paper.analysis.summary[:200] }}{% if paper.analysis.summary | length > 200 %}…{% endif %}</p>
+        <div class="card-keywords">
+            {% for kw in paper.analysis.keywords[:4] %}
+            <span class="keyword-pill">{{ kw }}</span>
+            {% endfor %}
+        </div>
+        <p class="card-date">{{ paper.published_at.strftime('%b %d, %Y') }}</p>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No papers in the last 24 hours.</p>
+    <p>Subscribe to arXiv categories or click <strong>Refresh</strong> to poll feeds now.</p>
+</div>
+{% endif %}
+
+<script>
+document.getElementById('refreshForm').addEventListener('submit', function() {
+    const btn = document.getElementById('refreshBtn');
+    btn.disabled = true;
+    btn.querySelector('.refresh-icon').classList.add('spinning');
+    btn.innerHTML = '<span class="refresh-icon spinning">↻</span> Processing…';
+});
+</script>
+{% endblock %}

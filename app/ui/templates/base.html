@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Paper Digest{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/ui" class="logo">📄 Paper Digest</a>
+        <div class="nav-links" id="navLinks">
+            <a href="/ui" class="{% if request.url.path == '/ui' %}active{% endif %}">Digest</a>
+            <a href="/ui/papers" class="{% if '/papers' in request.url.path and '/paper/' not in request.url.path %}active{% endif %}">Browse</a>
+            <a href="/ui/categories" class="{% if '/categories' in request.url.path %}active{% endif %}">Categories</a>
+            <a href="/ui/chat" class="{% if '/chat' in request.url.path %}active{% endif %}">Chat</a>
+        </div>
+        <button class="hamburger" onclick="document.getElementById('navLinks').classList.toggle('show')">☰</button>
+    </nav>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
