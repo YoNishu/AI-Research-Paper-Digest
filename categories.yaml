@@ -1,0 +1,15 @@
+categories:
+  - name: "Artificial Intelligence"
+    arxiv_code: "cs.AI"
+
+  - name: "Machine Learning"
+    arxiv_code: "cs.LG"
+
+  - name: "Computation and Language (NLP)"
+    arxiv_code: "cs.CL"
+
+  - name: "Computer Vision"
+    arxiv_code: "cs.CV"
+
+  - name: "Machine Learning (Stats)"
+    arxiv_code: "stat.ML"
